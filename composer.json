@@ -1,0 +1,10 @@
+{
+    "name": "iwai/get-line-profiles",
+    "authors":[
+        { "name":"Yuji Iwai", "email":"iwai.ug@gmail.com" }
+    ],
+    "require": {
+        "chh/optparse": "0.1.*",
+        "guzzlehttp/guzzle": "~6.0"
+    }
+}
