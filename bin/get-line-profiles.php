@@ -97,7 +97,6 @@ try {
 
         } catch (\GuzzleHttp\Exception\ClientException $e) {
 
-            fwrite(STDERR, $token . PHP_EOL);
             fwrite(STDERR, sprintf('%s: %s %s', $e->getResponse()->getStatusCode(), $e->getResponse()->getBody(), $line) . PHP_EOL);
         }
     }
