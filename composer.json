@@ -1,10 +1,9 @@
 {
-    "name": "iwai/get-line-profiles",
+    "name": "iwai/php-pipe",
     "authors":[
         { "name":"Yuji Iwai", "email":"iwai.ug@gmail.com" }
     ],
     "require": {
-        "chh/optparse": "0.1.*",
-        "guzzlehttp/guzzle": "~6.0"
+        "chh/optparse": "0.1.*"
     }
 }

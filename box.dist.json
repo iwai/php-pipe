@@ -9,13 +9,11 @@
       "exclude": [ "tests" ],
       "in": [
         "vendor/chh",
-        "vendor/psr",
-        "vendor/guzzlehttp",
         "vendor/composer"
       ]
     }
   ],
-  "main": "bin/get-line-profiles.php",
-  "output": "bin/get-line-profiles.phar",
+  "main": "bin/php-pipe.php",
+  "output": "bin/php-pipe.phar",
   "stub": true
 }
