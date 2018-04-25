@@ -17,33 +17,38 @@ if (PHP_SAPI !== 'cli') {
 require_once __DIR__.'/../vendor/autoload.php';
 
 use CHH\Optparse;
-
-$parser = new Optparse\Parser();
-
-function usage() {
-    global $parser;
-    fwrite(STDERR, "{$parser->usage()}\n");
-    exit(1);
-}
-
-$parser->setExamples([
-    sprintf("%s --script ./script.php", $argv[0]),
-]);
-
-$script = null;
-
-$parser->addFlag('help', [ 'alias' => '-h' ], 'usage');
-$parser->addFlag('verbose', [ 'alias' => '-v' ]);
-
-$parser->addFlagVar('script', $script, [ 'required' => true, 'has_value' => true ]);
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
 
 try {
+    $logger = new Logger('standard');
+    $logger->pushHandler(
+        (new StreamHandler('php://stderr'))->setFormatter(new LineFormatter("[%datetime%] %level_name%: %message%\n"))
+    );
+
+    $parser = new Optparse\Parser();
+
+    function usage() {
+        global $parser;
+        fwrite(STDERR, "{$parser->usage()}\n");
+        exit(1);
+    }
+
+    $parser->setExamples([
+        sprintf("%s --script ./script.php", $argv[0]),
+        sprintf("cat ./data.csv | %s --script ./script.php", $argv[0]),
+    ]);
+
+    $script = null;
+
+    $parser->addFlag('help', [ 'alias' => '-h' ], 'usage');
+    $parser->addFlag('verbose', [ 'alias' => '-v' ]);
+
+    $parser->addFlagVar('script', $script, [ 'alias' => '-s', 'required' => true, 'has_value' => true ]);
+
     $parser->parse();
-} catch (\Exception $e) {
-    usage();
-}
 
-try {
     if (!$script) {
         usage();
     }
@@ -51,15 +56,21 @@ try {
     if (($fp = fopen('php://stdin', 'r')) === false) {
         usage();
     }
-    $read = [$fp];
-    $w = $e = null;
-    $num_changed_streams = stream_select($read, $w, $e, 1);
-
-    if (!$num_changed_streams) {
+    // No input from pipe of stdin
+    if (stream_get_meta_data($fp)['seekable'] == true) {
+        $logger->error("No input from pipe of stdin");
         usage();
     }
 
-    require_once $script;
+    if (file_exists($script))
+        require_once $script;
+
+    if (!function_exists('pipe')) {
+        $logger->error(sprintf("Undefined function pipe() in script: %s", $script));
+        function pipe($line) {
+            return $line . "\n";
+        }
+    }
 
     while (!feof($fp)) {
         $line = trim(fgets($fp));
@@ -69,5 +80,8 @@ try {
     fclose($fp);
 
 } catch (\Exception $e) {
-    throw $e;
+
+    $logger->error($e->getMessage());
+
+    exit(255);
 }

@@ -9,7 +9,9 @@
       "exclude": [ "tests" ],
       "in": [
         "vendor/chh",
-        "vendor/composer"
+        "vendor/composer",
+        "vendor/monolog",
+        "vendor/psr"
       ]
     }
   ],
